@@ -12,30 +12,37 @@ function App() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5555/messages")
-      .then((r) => r.json())
-      .then((messages) => setMessages(messages));
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:5555/messages");
+        if (!response.ok) {
+          throw new Error("Network response was not ok.");
+        }
+        const messages = await response.json();
+        setMessages(messages);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    };
+
+    fetchMessages();
   }, []);
 
-  function handleAddMessage(newMessage) {
+  const handleAddMessage = (newMessage) => {
     setMessages([...messages, newMessage]);
-  }
+  };
 
-  function handleDeleteMessage(id) {
+  const handleDeleteMessage = (id) => {
     const updatedMessages = messages.filter((message) => message.id !== id);
     setMessages(updatedMessages);
-  }
+  };
 
-  function handleUpdateMessage(updatedMessageObj) {
-    const updatedMessages = messages.map((message) => {
-      if (message.id === updatedMessageObj.id) {
-        return updatedMessageObj;
-      } else {
-        return message;
-      }
-    });
+  const handleUpdateMessage = (updatedMessageObj) => {
+    const updatedMessages = messages.map((message) =>
+      message.id === updatedMessageObj.id ? updatedMessageObj : message
+    );
     setMessages(updatedMessages);
-  }
+  };
 
   const displayedMessages = messages.filter((message) =>
     message.body.toLowerCase().includes(search.toLowerCase())
@@ -57,3 +64,4 @@ function App() {
 }
 
 export default App;
+
